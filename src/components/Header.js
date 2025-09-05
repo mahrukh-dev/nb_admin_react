@@ -1,10 +1,17 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token"); // check login state
 
   const isActive = (path) => {
     return location.pathname === path;
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/"); // redirect to login page
   };
 
   return (
@@ -28,33 +35,54 @@ export default function Header() {
               </div>
             </div>
           </div>
-          
+
           {/* Navigation */}
           <nav className="flex space-x-1 sm:space-x-2">
-            <Link
-              to="/list"
-              className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
-                isActive('/list') || isActive('/')
-                  ? 'bg-white text-indigo-600 shadow-lg transform scale-105'
-                  : 'text-white hover:bg-white hover:bg-opacity-20 hover:scale-105'
-              }`}
-            >
-              <span className="text-sm sm:text-lg">👁️</span>
-              <span className="hidden sm:block">View Products</span>
-              <span className="block sm:hidden">View</span>
-            </Link>
-            <Link
-              to="/add"
-              className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
-                isActive('/add')
-                  ? 'bg-white text-indigo-600 shadow-lg transform scale-105'
-                  : 'text-white hover:bg-white hover:bg-opacity-20 hover:scale-105'
-              }`}
-            >
-              <span className="text-sm sm:text-lg">➕</span>
-              <span className="hidden sm:block">Add Product</span>
-              <span className="block sm:hidden">Add</span>
-            </Link>
+            {token ? (
+              <>
+                <Link
+                  to="/list"
+                  className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
+                    isActive("/list") || isActive("/")
+                      ? "bg-white text-indigo-600 shadow-lg transform scale-105"
+                      : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
+                  }`}
+                >
+                  <span className="text-sm sm:text-lg">👁️</span>
+                  <span className="hidden sm:block">View Products</span>
+                  <span className="block sm:hidden">View</span>
+                </Link>
+
+                <Link
+                  to="/add"
+                  className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
+                    isActive("/add")
+                      ? "bg-white text-indigo-600 shadow-lg transform scale-105"
+                      : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
+                  }`}
+                >
+                  <span className="text-sm sm:text-lg">➕</span>
+                  <span className="hidden sm:block">Add Product</span>
+                  <span className="block sm:hidden">Add</span>
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/"
+                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
+                  isActive("/") ? "bg-white text-indigo-600 shadow-lg" : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
+                }`}
+              >
+                🔑 Login
+              </Link>
+            )}
           </nav>
         </div>
       </div>
