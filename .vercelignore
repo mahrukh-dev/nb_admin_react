@@ -1,0 +1,19 @@
+# Ignore dependencies
+node_modules
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+
+# Ignore local environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Ignore build output (Vercel will build fresh)
+build
+
+# Misc
+.DS_Store
+.vscode
