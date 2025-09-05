@@ -5,9 +5,13 @@ const API = axios.create({
   timeout: 10000,
 });
 
-// Add request interceptor for debugging
+// Request interceptor to attach JWT token
 API.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem("token"); // JWT saved after login
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     console.log("Making request to:", config.baseURL + config.url);
     return config;
   },
@@ -17,11 +21,9 @@ API.interceptors.request.use(
   }
 );
 
-// Add response interceptor for error handling
+// Response interceptor for error handling
 API.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     console.error("API Error:", error);
     if (error.code === "ERR_NETWORK") {
