@@ -8,7 +8,8 @@ export default function ProductList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterAvailable, setFilterAvailable] = useState("all");
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 20;
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -47,11 +48,22 @@ export default function ProductList() {
     return matchesSearch && matchesFilter;
   });
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterAvailable]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mb-4"></div>
-        <p className="text-gray-600 font-medium">Loading products...</p>
+        <div className="w-16 h-16 mb-4 border-b-4 border-indigo-600 rounded-full animate-spin"></div>
+        <p className="font-medium text-gray-600">Loading products...</p>
       </div>
     );
   }
@@ -60,27 +72,27 @@ export default function ProductList() {
     <div className="space-y-8">
       {/* Page Header */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        <h1 className="mb-2 text-4xl font-bold text-gray-900">
           Product Inventory
         </h1>
-        <p className="text-gray-600 text-lg">
+        <p className="text-lg text-gray-600">
           Manage your products efficiently
         </p>
       </div>
 
       {/* Search and Filter Section */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <div className="flex flex-col md:flex-row gap-4 items-center">
-          <div className="flex-1 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-gray-400 text-xl">🔍</span>
+      <div className="p-6 bg-white shadow-lg rounded-2xl">
+        <div className="flex flex-col items-center gap-4 md:flex-row">
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <span className="text-xl text-gray-400">🔍</span>
             </div>
             <input
               type="text"
               placeholder="Search products by name or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+              className="w-full py-3 pl-10 pr-4 text-gray-900 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
 
@@ -88,7 +100,7 @@ export default function ProductList() {
             <select
               value={filterAvailable}
               onChange={(e) => setFilterAvailable(e.target.value)}
-              className="appearance-none bg-white border border-gray-300 rounded-xl px-4 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+              className="px-4 py-3 pr-8 text-gray-900 bg-white border border-gray-300 appearance-none rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             >
               <option value="all">
                 All Products ({products.length})
@@ -108,14 +120,14 @@ export default function ProductList() {
 
           <Link
             to="/add"
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 font-medium flex items-center space-x-2 shadow-lg"
+            className="flex items-center px-6 py-3 space-x-2 font-medium text-white transition-all duration-200 shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <span>➕</span>
             <span>Add New Product</span>
           </Link>
         </div>
 
-        <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+        <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
           <span>
             Showing {filteredProducts.length} of {products.length} products
           </span>
@@ -124,14 +136,14 @@ export default function ProductList() {
 
       {/* Products Grid */}
       {filteredProducts.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <div className="text-8xl mb-6 opacity-50">📦</div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+        <div className="p-12 text-center bg-white shadow-lg rounded-2xl">
+          <div className="mb-6 opacity-50 text-8xl">📦</div>
+          <h3 className="mb-3 text-2xl font-bold text-gray-900">
             {products.length === 0
               ? "No products found"
               : "No products match your search"}
           </h3>
-          <p className="text-gray-600 mb-8 text-lg">
+          <p className="mb-8 text-lg text-gray-600">
             {products.length === 0
               ? "Get started by adding your first product to the inventory"
               : "Try adjusting your search criteria or check different filters"}
@@ -139,7 +151,7 @@ export default function ProductList() {
           {products.length === 0 && (
             <Link
               to="/add"
-              className="inline-flex items-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg"
+              className="inline-flex items-center px-8 py-4 space-x-2 font-medium text-white transition-all duration-200 shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:from-indigo-700 hover:to-purple-700"
             >
               <span>➕</span>
               <span>Add Your First Product</span>
@@ -147,15 +159,87 @@ export default function ProductList() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product._id}
-              product={product}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {currentProducts.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="p-6 mt-8 bg-white shadow-lg rounded-2xl">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Showing {startIndex + 1} to {Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} products
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  {/* Previous Button */}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ← Previous
+                  </button>
+
+                  {/* Page Numbers */}
+                  <div className="flex items-center space-x-1">
+                    {[...Array(totalPages)].map((_, index) => {
+                      const pageNumber = index + 1;
+                      const isCurrentPage = pageNumber === currentPage;
+                      
+                      // Show first page, last page, current page, and pages around current page
+                      const showPage = 
+                        pageNumber === 1 ||
+                        pageNumber === totalPages ||
+                        Math.abs(pageNumber - currentPage) <= 1;
+
+                      if (!showPage) {
+                        // Show ellipsis for gaps
+                        if (pageNumber === 2 && currentPage > 4) {
+                          return <span key={pageNumber} className="px-2 text-gray-500">...</span>;
+                        }
+                        if (pageNumber === totalPages - 1 && currentPage < totalPages - 3) {
+                          return <span key={pageNumber} className="px-2 text-gray-500">...</span>;
+                        }
+                        return null;
+                      }
+
+                      return (
+                        <button
+                          key={pageNumber}
+                          onClick={() => setCurrentPage(pageNumber)}
+                          className={`px-3 py-2 rounded-lg transition-colors ${
+                            isCurrentPage
+                              ? 'bg-indigo-600 text-white'
+                              : 'border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
