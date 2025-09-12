@@ -7,6 +7,9 @@ export default function ProductCard({ product, onDelete }) {
     }
   };
 
+  // Check for both possible field names to handle backend inconsistencies
+  const isProductAvailable = product.isAvailable !== undefined ? product.isAvailable : product.available;
+
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
       {/* Product Image */}
@@ -29,11 +32,11 @@ export default function ProductCard({ product, onDelete }) {
         {/* Status Badge */}
         <div className="absolute top-2 right-2">
           <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium shadow-lg ${
-            product.isAvailable 
+            isProductAvailable
               ? 'bg-green-500 text-white' 
               : 'bg-red-500 text-white'
           }`}>
-            {product.isAvailable ? "In Stock" : "Out of Stock"}
+            {isProductAvailable ? "In Stock" : "Out of Stock"}
           </span>
         </div>
       </div>
