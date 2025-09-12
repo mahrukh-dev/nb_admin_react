@@ -63,8 +63,8 @@ export default function EditProduct() {
       submitData.append("name", formData.name);
       submitData.append("description", formData.description);
       submitData.append("price", formData.price);
-      submitData.append("available", formData.available);
-      submitData.append("onOffer", formData.onOffer);
+     submitData.append("available", formData.available ? "true" : "false");
+submitData.append("onOffer", formData.onOffer ? "true" : "false");
 
       if (newImage) {
         submitData.append("image", newImage);
@@ -221,3 +221,4 @@ export default function EditProduct() {
     </div>
   );
 }
+
