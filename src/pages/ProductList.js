@@ -41,10 +41,14 @@ export default function ProductList() {
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (product.description &&
         product.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // Check for both possible field names to handle backend inconsistencies
+    const isProductAvailable = product.isAvailable !== undefined ? product.isAvailable : product.available;
+    
     const matchesFilter =
       filterAvailable === "all" ||
-      (filterAvailable === "available" && product.isAvailable) ||
-      (filterAvailable === "unavailable" && !product.isAvailable);
+      (filterAvailable === "available" && isProductAvailable) ||
+      (filterAvailable === "unavailable" && !isProductAvailable);
     return matchesSearch && matchesFilter;
   });
 
@@ -107,12 +111,12 @@ export default function ProductList() {
               </option>
               <option value="available">
                 In Stock (
-                {products.filter((p) => p.isAvailable).length}
+                {products.filter((p) => p.isAvailable !== undefined ? p.isAvailable : p.available).length}
                 )
               </option>
               <option value="unavailable">
                 Out of Stock (
-                {products.filter((p) => !p.isAvailable).length}
+                {products.filter((p) => !(p.isAvailable !== undefined ? p.isAvailable : p.available)).length}
                 )
               </option>
             </select>
