@@ -5,7 +5,9 @@ import API from "../api";
 export default function AddProduct() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
   const [isAvailable, setIsAvailable] = useState(true);
+  const [onOffer, setonOffer] = useState(false);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -50,12 +52,30 @@ export default function AddProduct() {
         throw new Error("Backend server is not reachable");
       }
 
+      // Debug logging
+      console.log("Form data before submission:", {
+        name,
+        description,
+        price,
+        isAvailable,
+        onOffer
+      });
+
       const formData = new FormData();
       formData.append("name", name);
       formData.append("description", description);
-      formData.append("isAvailable", isAvailable);
+      formData.append("price", price);
+      // Ensure booleans are properly converted
+      formData.append("isAvailable", isAvailable.toString());
+      formData.append("onOffer", onOffer.toString());
       if (image) {
         formData.append("image", image);
+      }
+
+      // Debug FormData contents
+      console.log("FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
       }
 
       console.log("Submitting product data...");
@@ -65,6 +85,7 @@ export default function AddProduct() {
         },
       });
       
+      console.log("Server response:", res.data);
       alert("✅ Product Added: " + res.data.name);
       navigate("/list");
     } catch (err) {
@@ -92,13 +113,13 @@ export default function AddProduct() {
   return (
     <div className="max-w-3xl mx-auto">
       {/* Page Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Add New Product</h1>
-        <p className="text-gray-600 text-lg">Fill in the details to add a new product to your inventory</p>
+      <div className="mb-8 text-center">
+        <h1 className="mb-2 text-4xl font-bold text-gray-900">Add New Product</h1>
+        <p className="text-lg text-gray-600">Fill in the details to add a new product to your inventory</p>
       </div>
 
       {connectionError && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl mb-6">
+        <div className="px-6 py-4 mb-6 text-red-800 border border-red-200 bg-red-50 rounded-xl">
           <div className="flex items-center space-x-2">
             <span className="text-xl">⚠️</span>
             <div>
@@ -106,7 +127,7 @@ export default function AddProduct() {
               Make sure your backend is running on http://localhost:5000
               <button 
                 onClick={checkBackendConnection}
-                className="ml-2 text-red-900 underline hover:no-underline font-medium"
+                className="ml-2 font-medium text-red-900 underline hover:no-underline"
               >
                 Retry Connection
               </button>
@@ -115,11 +136,11 @@ export default function AddProduct() {
         </div>
       )}
       
-      <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="p-8 bg-white shadow-xl rounded-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Product Name */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Product Name *
             </label>
             <input
@@ -128,13 +149,13 @@ export default function AddProduct() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 transition-all duration-200 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Description
             </label>
             <textarea
@@ -142,24 +163,42 @@ export default function AddProduct() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-none"
+              className="w-full px-4 py-3 transition-all duration-200 border border-gray-300 resize-none rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
 
-
+          {/* Price */}
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Price (PKR) *
+            </label>
+            <div className="relative">
+              <span className="absolute font-medium text-gray-500 transform -translate-y-1/2 left-3 top-1/2">Rs.</span>
+              <input
+                type="number"
+                placeholder="0.00"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+                min="0"
+                step="0.01"
+                className="w-full py-3 pl-12 pr-4 transition-all duration-200 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+          </div>
 
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Product Image
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-indigo-500 transition-colors duration-200">
+            <div className="p-6 text-center transition-colors duration-200 border-2 border-gray-300 border-dashed rounded-xl hover:border-indigo-500">
               {imagePreview ? (
                 <div className="space-y-4">
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="mx-auto h-32 w-32 object-cover rounded-lg"
+                    className="object-cover w-32 h-32 mx-auto rounded-lg"
                   />
                   <button
                     type="button"
@@ -167,7 +206,7 @@ export default function AddProduct() {
                       setImage(null);
                       setImagePreview(null);
                     }}
-                    className="text-red-600 hover:text-red-800 font-medium"
+                    className="font-medium text-red-600 hover:text-red-800"
                   >
                     Remove Image
                   </button>
@@ -182,39 +221,62 @@ export default function AddProduct() {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="mt-4 block w-full text-sm text-gray-500
-                          file:mr-4 file:py-2 file:px-4
-                          file:rounded-lg file:border-0
-                          file:text-sm file:font-medium
-                          file:bg-indigo-50 file:text-indigo-700
-                          hover:file:bg-indigo-100"
+                className="block w-full mt-4 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
               />
             </div>
           </div>
 
-          {/* Availability */}
-          <div className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              checked={isAvailable}
-              onChange={(e) => setIsAvailable(e.target.checked)}
-              className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-            />
-            <label className="text-sm font-semibold text-gray-700">
-              Product is available in stock
-            </label>
+          {/* Availability and Offer */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="isAvailable"
+                checked={isAvailable}
+                onChange={(e) => {
+                  console.log("Availability changed:", e.target.checked);
+                  setIsAvailable(e.target.checked);
+                }}
+                className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              />
+              <label htmlFor="isAvailable" className="text-sm font-semibold text-gray-700">
+                Product is available in stock
+                <span className="ml-2 text-xs text-gray-500">
+                  (Currently: {isAvailable ? "Available" : "Not Available"})
+                </span>
+              </label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="onOffer"
+                checked={onOffer}
+                onChange={(e) => {
+                  console.log("Offer status changed:", e.target.checked);
+                  setonOffer(e.target.checked);
+                }}
+                className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+              />
+              <label htmlFor="onOffer" className="text-sm font-semibold text-gray-700">
+                Product is on special offer
+                <span className="ml-2 text-xs text-gray-500">
+                  (Currently: {onOffer ? "On Offer" : "Regular Price"})
+                </span>
+              </label>
+            </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-4 pt-6">
+          <div className="flex pt-6 space-x-4">
             <button
               type="submit"
               disabled={loading || connectionError}
-              className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium flex items-center justify-center space-x-2"
+              className="flex items-center justify-center flex-1 px-6 py-3 space-x-2 font-medium text-white transition-all duration-200 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                  <div className="w-5 h-5 border-2 border-white rounded-full animate-spin border-t-transparent"></div>
                   <span>Adding Product...</span>
                 </>
               ) : (
@@ -227,7 +289,7 @@ export default function AddProduct() {
             <button
               type="button"
               onClick={() => navigate("/list")}
-              className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 font-medium"
+              className="px-6 py-3 font-medium text-gray-700 transition-all duration-200 border-2 border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
             >
               Cancel
             </button>
