@@ -10,7 +10,9 @@ export default function EditProduct() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    isAvailable: true,
+    price: 0,
+    available: true,
+    onOffer: false,
   });
   const [currentImage, setCurrentImage] = useState("");
   const [newImage, setNewImage] = useState(null);
@@ -22,7 +24,9 @@ export default function EditProduct() {
       setFormData({
         name: product.name || "",
         description: product.description || "",
-        isAvailable: product.isAvailable,
+        price: product.price || 0,
+        available: product.available ?? true,
+        onOffer: product.onOffer ?? false,
       });
       setCurrentImage(product.image || "");
     } catch (error) {
@@ -40,9 +44,9 @@ export default function EditProduct() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -58,8 +62,10 @@ export default function EditProduct() {
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("description", formData.description);
-      submitData.append("isAvailable", formData.isAvailable);
-      
+      submitData.append("price", formData.price);
+      submitData.append("available", formData.available);
+      submitData.append("onOffer", formData.onOffer);
+
       if (newImage) {
         submitData.append("image", newImage);
       }
@@ -82,20 +88,21 @@ export default function EditProduct() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="w-12 h-12 border-b-2 border-blue-600 rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Product</h2>
-        
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="mb-6 text-2xl font-bold text-gray-900">Edit Product</h2>
+
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Product Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block mb-2 text-sm font-medium text-gray-700">
               Product Name
             </label>
             <input
@@ -108,8 +115,9 @@ export default function EditProduct() {
             />
           </div>
 
+          {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block mb-2 text-sm font-medium text-gray-700">
               Description
             </label>
             <textarea
@@ -121,16 +129,33 @@ export default function EditProduct() {
             />
           </div>
 
-
+          {/* Price */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block mb-2 text-sm font-medium text-gray-700">
+              Price
+            </label>
+            <input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleInputChange}
+              min="0"
+              step="0.01"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Current + New Image */}
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-700">
               Current Image
             </label>
             {currentImage && (
               <img
                 src={`http://localhost:5000/uploads/${currentImage}`}
                 alt="Current product"
-                className="w-32 h-32 object-cover rounded-md mb-2"
+                className="object-cover w-32 h-32 mb-2 rounded-md"
               />
             )}
             <input
@@ -140,35 +165,53 @@ export default function EditProduct() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             {newImage && (
-              <p className="text-sm text-green-600 mt-1">New image selected: {newImage.name}</p>
+              <p className="mt-1 text-sm text-green-600">
+                New image selected: {newImage.name}
+              </p>
             )}
           </div>
 
+          {/* Availability */}
           <div className="flex items-center">
             <input
               type="checkbox"
-              name="isAvailable"
-              checked={formData.isAvailable}
+              name="available"
+              checked={formData.available}
               onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
             />
-            <label className="ml-2 block text-sm text-gray-700">
+            <label className="block ml-2 text-sm text-gray-700">
               Product Available
             </label>
           </div>
 
+          {/* Offer */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              name="onOffer"
+              checked={formData.onOffer}
+              onChange={handleInputChange}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label className="block ml-2 text-sm text-gray-700">
+              On Offer
+            </label>
+          </div>
+
+          {/* Buttons */}
           <div className="flex space-x-4">
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-4 py-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? "Updating..." : "Update Product"}
             </button>
             <button
               type="button"
               onClick={() => navigate("/list")}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              className="px-4 py-2 text-gray-700 transition-colors border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Cancel
             </button>

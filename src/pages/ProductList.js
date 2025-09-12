@@ -8,8 +8,10 @@ export default function ProductList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterAvailable, setFilterAvailable] = useState("all");
+  const [filterOffer, setFilterOffer] = useState("all"); // ✅ new state
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 20;
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -41,15 +43,28 @@ export default function ProductList() {
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (product.description &&
         product.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // Check for both possible field names to handle backend inconsistencies
-    const isProductAvailable = product.isAvailable !== undefined ? product.isAvailable : product.available;
-    
-    const matchesFilter =
+
+    // normalize availability field
+    const isProductAvailable =
+      product.isAvailable !== undefined ? product.isAvailable : product.available;
+
+    // normalize offer field
+    const isProductOnOffer =
+      product.isOnOffer !== undefined ? product.isOnOffer : product.onOffer;
+
+    // availability filter
+    const matchesAvailable =
       filterAvailable === "all" ||
       (filterAvailable === "available" && isProductAvailable) ||
       (filterAvailable === "unavailable" && !isProductAvailable);
-    return matchesSearch && matchesFilter;
+
+    // offer filter
+    const matchesOffer =
+      filterOffer === "all" ||
+      (filterOffer === "onOffer" && isProductOnOffer) ||
+      (filterOffer === "notOnOffer" && !isProductOnOffer);
+
+    return matchesSearch && matchesAvailable && matchesOffer;
   });
 
   // Pagination calculations
@@ -61,7 +76,7 @@ export default function ProductList() {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, filterAvailable]);
+  }, [searchTerm, filterAvailable, filterOffer]);
 
   if (loading) {
     return (
@@ -79,14 +94,13 @@ export default function ProductList() {
         <h1 className="mb-2 text-4xl font-bold text-gray-900">
           Product Inventory
         </h1>
-        <p className="text-lg text-gray-600">
-          Manage your products efficiently
-        </p>
+        <p className="text-lg text-gray-600">Manage your products efficiently</p>
       </div>
 
       {/* Search and Filter Section */}
       <div className="p-6 bg-white shadow-lg rounded-2xl">
         <div className="flex flex-col items-center gap-4 md:flex-row">
+          {/* Search Bar */}
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <span className="text-xl text-gray-400">🔍</span>
@@ -100,6 +114,7 @@ export default function ProductList() {
             />
           </div>
 
+          {/* Availability Filter */}
           <div className="relative">
             <select
               value={filterAvailable}
@@ -111,17 +126,49 @@ export default function ProductList() {
               </option>
               <option value="available">
                 In Stock (
-                {products.filter((p) => p.isAvailable !== undefined ? p.isAvailable : p.available).length}
+                {products.filter((p) =>
+                  p.isAvailable !== undefined ? p.isAvailable : p.available
+                ).length}
                 )
               </option>
               <option value="unavailable">
                 Out of Stock (
-                {products.filter((p) => !(p.isAvailable !== undefined ? p.isAvailable : p.available)).length}
+                {products.filter(
+                  (p) => !(p.isAvailable !== undefined ? p.isAvailable : p.available)
+                ).length}
                 )
               </option>
             </select>
           </div>
 
+          {/* Offer Filter */}
+          <div className="relative">
+            <select
+              value={filterOffer}
+              onChange={(e) => setFilterOffer(e.target.value)}
+              className="px-4 py-3 pr-8 text-gray-900 bg-white border border-gray-300 appearance-none rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            >
+              <option value="all">
+                All Offers ({products.length})
+              </option>
+              <option value="onOffer">
+                On Offer (
+                {products.filter((p) =>
+                  p.isOnOffer !== undefined ? p.isOnOffer : p.onOffer
+                ).length}
+                )
+              </option>
+              <option value="notOnOffer">
+                Not on Offer (
+                {products.filter(
+                  (p) => !(p.isOnOffer !== undefined ? p.isOnOffer : p.onOffer)
+                ).length}
+                )
+              </option>
+            </select>
+          </div>
+
+          {/* Add New Product Button */}
           <Link
             to="/add"
             className="flex items-center px-6 py-3 space-x-2 font-medium text-white transition-all duration-200 shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -179,13 +226,14 @@ export default function ProductList() {
             <div className="p-6 mt-8 bg-white shadow-lg rounded-2xl">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-600">
-                  Showing {startIndex + 1} to {Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} products
+                  Showing {startIndex + 1} to {Math.min(endIndex, filteredProducts.length)} of{" "}
+                  {filteredProducts.length} products
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   {/* Previous Button */}
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
                     className="px-4 py-2 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -197,20 +245,30 @@ export default function ProductList() {
                     {[...Array(totalPages)].map((_, index) => {
                       const pageNumber = index + 1;
                       const isCurrentPage = pageNumber === currentPage;
-                      
-                      // Show first page, last page, current page, and pages around current page
-                      const showPage = 
+
+                      // Show first page, last page, current page, and nearby pages
+                      const showPage =
                         pageNumber === 1 ||
                         pageNumber === totalPages ||
                         Math.abs(pageNumber - currentPage) <= 1;
 
                       if (!showPage) {
-                        // Show ellipsis for gaps
                         if (pageNumber === 2 && currentPage > 4) {
-                          return <span key={pageNumber} className="px-2 text-gray-500">...</span>;
+                          return (
+                            <span key={pageNumber} className="px-2 text-gray-500">
+                              ...
+                            </span>
+                          );
                         }
-                        if (pageNumber === totalPages - 1 && currentPage < totalPages - 3) {
-                          return <span key={pageNumber} className="px-2 text-gray-500">...</span>;
+                        if (
+                          pageNumber === totalPages - 1 &&
+                          currentPage < totalPages - 3
+                        ) {
+                          return (
+                            <span key={pageNumber} className="px-2 text-gray-500">
+                              ...
+                            </span>
+                          );
                         }
                         return null;
                       }
@@ -221,8 +279,8 @@ export default function ProductList() {
                           onClick={() => setCurrentPage(pageNumber)}
                           className={`px-3 py-2 rounded-lg transition-colors ${
                             isCurrentPage
-                              ? 'bg-indigo-600 text-white'
-                              : 'border border-gray-300 hover:bg-gray-50'
+                              ? "bg-indigo-600 text-white"
+                              : "border border-gray-300 hover:bg-gray-50"
                           }`}
                         >
                           {pageNumber}
@@ -233,7 +291,9 @@ export default function ProductList() {
 
                   {/* Next Button */}
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                     disabled={currentPage === totalPages}
                     className="px-4 py-2 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
