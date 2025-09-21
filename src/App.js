@@ -6,6 +6,7 @@ import ProductList from "./pages/ProductList";
 import EditProduct from "./pages/EditProduct";
 import PrivateRoute from "./components/PrivateRoute";
 import Login from "./pages/Login";
+import CategoryManagement from "./components/CategoryManagement";
 
 function App() {
   return (
@@ -50,6 +51,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <EditProduct />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/categories"
+              element={
+                <PrivateRoute>
+                  <CategoryManagement />
                 </PrivateRoute>
               }
             />

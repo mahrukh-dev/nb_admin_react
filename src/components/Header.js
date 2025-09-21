@@ -1,13 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { LogOut, Eye, Folder, Plus } from "lucide-react"; // use lucid-react icons
 
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const token = localStorage.getItem("token"); // check login state
 
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
+  const isActive = (path) => location.pathname === path;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -43,41 +42,49 @@ export default function Header() {
                 <Link
                   to="/list"
                   className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
-                    isActive("/list") || isActive("/")
-                      ? "bg-white text-indigo-600 shadow-lg transform scale-105"
-                      : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
+                    isActive("/list") ? "bg-white text-indigo-600 shadow-lg" : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
                   }`}
                 >
-                  <span className="text-sm sm:text-lg">👁️</span>
+                  <Eye className="w-5 h-5" />
                   <span className="hidden sm:block">View Products</span>
                   <span className="block sm:hidden">View</span>
                 </Link>
 
                 <Link
-                  to="/add"
+                  to="/categories"
                   className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
-                    isActive("/add")
-                      ? "bg-white text-indigo-600 shadow-lg transform scale-105"
-                      : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
+                    isActive("/categories") ? "bg-white text-indigo-600 shadow-lg" : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
                   }`}
                 >
-                  <span className="text-sm sm:text-lg">➕</span>
+                  <Folder className="w-5 h-5" />
+                  <span className="hidden sm:block">Categories</span>
+                  <span className="block sm:hidden">Cat</span>
+                </Link>
+
+                <Link
+                  to="/add"
+                  className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
+                    isActive("/add") ? "bg-white text-indigo-600 shadow-lg" : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
+                  }`}
+                >
+                  <Plus className="w-5 h-5" />
                   <span className="hidden sm:block">Add Product</span>
                   <span className="block sm:hidden">Add</span>
                 </Link>
 
                 <button
                   onClick={handleLogout}
-                  className="px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
+                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
                 >
+                  <LogOut className="w-5 h-5 mr-1" />
                   Logout
                 </button>
               </>
             ) : (
               <Link
                 to="/"
-                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
-                  isActive("/") ? "bg-white text-indigo-600 shadow-lg" : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
+                className={`flex items-center px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-white hover:bg-white hover:bg-opacity-20 hover:scale-105 ${
+                  isActive("/") ? "bg-red-500 text-indigo-600 shadow-lg" : ""
                 }`}
               >
                 🔑 Login
