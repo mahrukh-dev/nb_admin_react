@@ -1,4 +1,4 @@
-"use client"
+
 
 import { Link } from "react-router-dom"
 
@@ -10,7 +10,15 @@ export default function ProductCard({ product, onDelete }) {
   }
 
   // ✅ Universal availability check
-  const isInStock = product.available === true || product.isAvailable === true || product.disavailable === false
+  // ✅ Normalize availability with proper fallback
+const isInStock =
+  product?.isAvailable !== undefined
+    ? product.isAvailable
+    : product?.available !== undefined
+    ? product.available
+    : product?.disavailable !== undefined
+    ? !product.disavailable
+    : false;
 
   // Format dates if available
   const formatDate = (dateStr) => {
