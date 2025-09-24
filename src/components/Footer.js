@@ -1,3 +1,5 @@
+import { Phone, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
+
 export default function Footer() {
   return (
     <footer className="mt-auto text-white bg-gray-800">
@@ -17,24 +19,32 @@ export default function Footer() {
           
           <div>
             <h3 className="mb-4 text-lg font-semibold">Contact Info</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li>📞 Phone: 051-5533395</li>
-              <li>📍 Location: Shop no: 11 , Kashif plaza,</li>
-              <li>   Nankari Bazar, Near Fowara Chowk, Rawalpindi</li>
+           <ul className="space-y-2 text-gray-300">
+              <li className="flex items-center space-x-2">
+                <Phone className="w-4 h-4" />
+                <span>Phone: 051-5533395</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <MapPin className="w-4 h-4 mt-1" />
+                <span>Location: Shop no: 11, Kashif plaza, Nankari Bazar, Near Fowara Chowk, Rawalpindi</span>
+              </li>
             </ul>
           </div>
           
           <div>
             <h3 className="mb-4 text-lg font-semibold">Follow Us</h3>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 transition-colors hover:text-white">
-                📘 Facebook
+              <a href="#" className="flex items-center space-x-1 text-gray-300 transition-colors hover:text-white">
+                <Facebook className="w-4 h-4" />
+                <span>Facebook</span>
               </a>
-              <a href="#" className="text-gray-300 transition-colors hover:text-white">
-                📷 Instagram
+              <a href="#" className="flex items-center space-x-1 text-gray-300 transition-colors hover:text-white">
+                <Instagram className="w-4 h-4" />
+                <span>Instagram</span>
               </a>
-              <a href="#" className="text-gray-300 transition-colors hover:text-white">
-                🐦 Twitter
+              <a href="#" className="flex items-center space-x-1 text-gray-300 transition-colors hover:text-white">
+                <Twitter className="w-4 h-4" />
+                <span>Twitter</span>
               </a>
             </div>
           </div>

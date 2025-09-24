@@ -89,13 +89,13 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
 
   const saveChanges = async (orderId) => {
     try {
-      // Validate products before saving
+      // Validate products before saving - only check for name and quantity
       const invalidProducts = editFormData.products.filter(product => 
-        !product.name.trim() || product.price <= 0 || product.quantity <= 0
+        !product.name.trim() || product.quantity <= 0
       );
 
       if (invalidProducts.length > 0) {
-        alert('Please fill in all product details with valid values (name, price > 0, quantity > 0)');
+        alert('Please fill in all product details with valid values (name required, quantity > 0)');
         return;
       }
 
@@ -103,7 +103,7 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
       const validatedProducts = editFormData.products.map(product => {
         const cleanProduct = {
           name: product.name.trim(),
-          price: Number(product.price),
+          price: Number(product.price) || 0, // Default to 0 if no price entered
           quantity: Number(product.quantity)
         };
 
@@ -211,7 +211,7 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
                 {editingOrder === order._id ? (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">Name</label>
                       <input
                         type="text"
                         value={editFormData.client?.name || ''}
@@ -220,7 +220,7 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact</label>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">Contact</label>
                       <input
                         type="text"
                         value={editFormData.client?.contact || ''}
@@ -229,7 +229,7 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">City</label>
                       <input
                         type="text"
                         value={editFormData.client?.city || ''}
@@ -238,7 +238,7 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">Address</label>
                       <textarea
                         value={editFormData.client?.address || ''}
                         onChange={(e) => handleClientChange('address', e.target.value)}
@@ -270,7 +270,7 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
                       <select
                         value={editFormData.paymentMethod || 'COD'}
                         onChange={(e) => handlePaymentMethodChange(e.target.value)}
-                        className="ml-2 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-blue-500"
+                        className="px-2 py-1 ml-2 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
                       >
                         <option value="COD">COD</option>
                         <option value="Online">Online</option>
@@ -307,9 +307,9 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
                 <div className="space-y-3">
                   {editFormData.products?.map((product, index) => (
                     <div key={index} className="p-3 border border-gray-200 rounded-lg">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Product Name *</label>
+                          <label className="block mb-1 text-xs font-medium text-gray-700">Product Name *</label>
                           <input
                             type="text"
                             value={product.name || ''}
@@ -320,20 +320,19 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Price (Rs) *</label>
+                          <label className="block mb-1 text-xs font-medium text-gray-700">Price (Rs)</label>
                           <input
                             type="number"
-                            min="0.01"
-                            step="0.01"
+                            min="0"
+                            step="1"
                             value={product.price || ''}
                             onChange={(e) => handleProductChange(index, 'price', e.target.value)}
                             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                            placeholder="0.00"
-                            required
+                            placeholder="0"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Quantity *</label>
+                          <label className="block mb-1 text-xs font-medium text-gray-700">Quantity *</label>
                           <input
                             type="number"
                             min="1"
@@ -346,7 +345,7 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
                         </div>
                         <div className="flex items-end">
                           <div className="flex-1">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Subtotal</label>
+                            <label className="block mb-1 text-xs font-medium text-gray-700">Subtotal</label>
                             <div className="px-2 py-1 text-sm bg-gray-100 rounded">
                               Rs {((product.price || 0) * (product.quantity || 0)).toFixed(2)}
                             </div>
@@ -354,7 +353,7 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
                           {editFormData.products.length > 1 && (
                             <button
                               onClick={() => removeProduct(index)}
-                              className="ml-2 px-2 py-1 text-xs text-red-600 border border-red-600 rounded hover:bg-red-50"
+                              className="px-2 py-1 ml-2 text-xs text-red-600 border border-red-600 rounded hover:bg-red-50"
                               type="button"
                             >
                               Remove
@@ -405,3 +404,4 @@ const PendingOrders = ({ orders, onUpdateStatus, onDeleteOrder, onUpdateOrder })
 };
 
 export default PendingOrders;
+

@@ -1,10 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Eye, Folder, Plus } from "lucide-react"; // use lucid-react icons
+import { LogOut, Eye, Folder, Plus, ShoppingBag } from "lucide-react"; // use lucid-react icons
 
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const token = localStorage.getItem("token"); // check login state
+  const token = localStorage.getItem("token");
+  const isLoggedIn = token && token !== "null" && token !== "undefined" && token.trim() !== "";
 
   const isActive = (path) => location.pathname === path;
 
@@ -35,35 +36,9 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Navigation */}          {/* <nav className="hidden space-x-8 md:flex">
-            <Link
-              to="/list"
-              className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:text-white"
-            >
-              Products
-            </Link>
-            <Link
-              to="/add"
-              className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:text-white"
-            >
-              Add Product
-            </Link>
-            <Link
-              to="/categories"
-              className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:text-white"
-            >
-              Categories
-            </Link>
-            <Link
-              to="/orders"
-              className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:text-white"
-            >
-              Orders
-            </Link>
-          </nav> */}
-
+          {/* Navigation */}
           <nav className="flex space-x-1 sm:space-x-2">
-            {token ? (
+            {isLoggedIn ? (
               <>
                 <Link
                   to="/list"
@@ -87,13 +62,13 @@ export default function Header() {
                   <span className="block sm:hidden">Cat</span>
                 </Link>
 
-                 <Link
+                <Link
                   to="/orders"
                   className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
                     isActive("/orders") ? "bg-white text-indigo-600 shadow-lg" : "text-white hover:bg-white hover:bg-opacity-20 hover:scale-105"
                   }`}
                 >
-                  <Folder className="w-5 h-5" />
+                  <ShoppingBag className="w-5 h-5" />
                   <span className="hidden sm:block">Orders</span>
                   <span className="block sm:hidden">Orders</span>
                 </Link>
@@ -111,20 +86,19 @@ export default function Header() {
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
+                  className="flex items-center px-2 py-2 text-xs font-medium text-white bg-red-500 rounded-lg sm:px-3 sm:text-sm hover:bg-red-600"
                 >
-                  <LogOut className="w-5 h-5 mr-1" />
-                  Logout
+                  <LogOut className="w-4 h-4 mr-1 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:block">Logout</span>
                 </button>
               </>
             ) : (
               <Link
                 to="/"
-                className={`flex items-center px-2 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-white hover:bg-white hover:bg-opacity-20 hover:scale-105 ${
-                  isActive("/") ? "bg-red-500 text-indigo-600 shadow-lg" : ""
-                }`}
+                className="flex items-center px-2 py-2 space-x-1 text-xs font-medium text-white rounded-lg sm:px-6 sm:py-3 sm:text-sm hover:bg-white hover:bg-opacity-20 hover:scale-105"
               >
-                🔑 Login
+                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>Login</span>
               </Link>
             )}
           </nav>

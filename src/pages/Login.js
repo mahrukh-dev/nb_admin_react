@@ -127,11 +127,7 @@ export default function Login() {
                   Remember me
                 </label>
               </div>
-              <div className="text-sm">
-                <a href="#" className="font-medium text-blue-600 transition-colors hover:text-blue-500">
-                  Forgot password?
-                </a>
-              </div>
+              
             </div>
             
             <button
@@ -150,11 +146,11 @@ export default function Login() {
           </form>
 
           {/* Additional Info */}
-          <div className="pt-4 text-center border-t border-gray-200">
+          {/* <div className="pt-4 text-center border-t border-gray-200">
             <p className="text-xs text-gray-500">
               Protected by enterprise-grade security
             </p>
-          </div>
+          </div> */}
         </div>
 
         {/* Footer */}
