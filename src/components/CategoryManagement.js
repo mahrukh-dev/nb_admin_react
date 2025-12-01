@@ -8,7 +8,8 @@ const CategoryManagement = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
 
- const API_BASE_URL = 'https://nbbackend-production.up.railway.app/api';
+
+ const API_BASE_URL = 'https://nbbackend-production-8c50.up.railway.app/api';
 
 
   // Fetch all categories
